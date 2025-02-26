@@ -121,7 +121,7 @@ class Corridor:
         self.build_segments()
         
     def build_segments(self) -> None:
-        """
+        """ 
         Build the initial corridor segments using CardMaker.
         """
         for i in range(self.num_segments):
@@ -271,7 +271,7 @@ class MousePortal(ShowBase):
         self.accept("arrow_up-up", self.set_key, ["forward", False])
         self.accept("arrow_down", self.set_key, ["backward", True])
         self.accept("arrow_down-up", self.set_key, ["backward", False])
-        
+        self.accept('escape', self.userExit)
         # Create corridor geometry.
         self.corridor: Corridor = Corridor(self, self.cfg)
         self.segment_length: float = self.cfg["segment_length"]
