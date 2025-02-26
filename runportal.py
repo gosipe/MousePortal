@@ -180,7 +180,7 @@ class Corridor:
         texture: Texture = self.base.loader.loadTexture(texture_path)
         node.setTexture(texture)
         
-    def recycle_segment(self) -> None:
+    def recycle_segment(self, direction: str) -> None:
         """
         Recycle the front segments by repositioning them to the end of the corridor.
         This is called when the player has advanced by one segment length.
@@ -188,25 +188,49 @@ class Corridor:
         # Calculate new base Y position from the last segment in the left wall.
         new_y: float = self.left_segments[-1].getY() + self.segment_length
         
-        # Recycle left wall segment.
-        left_seg: NodePath = self.left_segments.pop(0)
-        left_seg.setY(new_y)
-        self.left_segments.append(left_seg)
-        
-        # Recycle right wall segment.
-        right_seg: NodePath = self.right_segments.pop(0)
-        right_seg.setY(new_y)
-        self.right_segments.append(right_seg)
-        
-        # Recycle ceiling segment.
-        ceiling_seg: NodePath = self.ceiling_segments.pop(0)
-        ceiling_seg.setY(new_y)
-        self.ceiling_segments.append(ceiling_seg)
-        
-        # Recycle floor segment.
-        floor_seg: NodePath = self.floor_segments.pop(0)
-        floor_seg.setY(new_y)
-        self.floor_segments.append(floor_seg)
+        if direction == "forward":
+            new_y = self.left_segments[-1].getY() + self.segment_length
+            # Recycle left wall segment.
+            left_seg: NodePath = self.left_segments.pop(0)
+            left_seg.setY(new_y)
+            self.left_segments.append(left_seg)
+            
+            # Recycle right wall segment.
+            right_seg: NodePath = self.right_segments.pop(0)
+            right_seg.setY(new_y)
+            self.right_segments.append(right_seg)
+            
+            # Recycle ceiling segment.
+            ceiling_seg: NodePath = self.ceiling_segments.pop(0)
+            ceiling_seg.setY(new_y)
+            self.ceiling_segments.append(ceiling_seg)
+            
+            # Recycle floor segment.
+            floor_seg: NodePath = self.floor_segments.pop(0)
+            floor_seg.setY(new_y)
+            self.floor_segments.append(floor_seg)
+
+        elif direction == "backward":
+            new_y = self.left_segments[0].getY() - self.segment_length
+            # Recycle left wall segment.
+            left_seg: NodePath = self.left_segments.pop(-1)
+            left_seg.setY(new_y)
+            self.left_segments.insert(0, left_seg)
+
+            # Recycle right wall segment.
+            right_seg: NodePath = self.right_segments.pop(-1)
+            right_seg.setY(new_y)
+            self.right_segments.insert(0, right_seg)
+
+            # Recycle ceiling segment.
+            ceiling_seg: NodePath = self.ceiling_segments.pop(-1)
+            ceiling_seg.setY(new_y)
+            self.ceiling_segments.insert(0, ceiling_seg)
+
+            # Recycle floor segment.
+            floor_seg: NodePath = self.floor_segments.pop(-1)
+            floor_seg.setY(new_y)
+            self.floor_segments.insert(0, floor_seg)
 
 class MousePortal(ShowBase):
     """
@@ -301,12 +325,19 @@ class MousePortal(ShowBase):
         move_distance = self.player_velocity * dt
         self.camera.setPos(0, self.player_position, self.camera_height)
         
-        # Only recycle when moving forward.
+        # Recycle corridor segments when the player moves beyond one segment length
+        # Forward movement
         if move_distance > 0:
             self.distance_since_recycle += move_distance
             while self.distance_since_recycle >= self.segment_length:
-                self.corridor.recycle_segment()
+                self.corridor.recycle_segment(direction="forward")
                 self.distance_since_recycle -= self.segment_length
+        # Backward movement
+        elif move_distance < 0:
+            self.distance_since_recycle += move_distance
+            while self.distance_since_recycle <= -self.segment_length:
+                self.corridor.recycle_segment(direction="backward")
+                self.distance_since_recycle += self.segment_length
         
         # Log movement data (timestamp, position, velocity)
         self.data_logger.log(time.time(), self.player_position, self.player_velocity)
