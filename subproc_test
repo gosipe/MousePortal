@@ -1,0 +1,21 @@
+import subprocess
+import time
+import signal
+import sys
+
+# Replace 'other_script.py' with the path to the script you want to run
+script_to_run = 'other_script.py'
+
+# Start the subprocess
+proc = subprocess.Popen(['python', 'trigger_cam_rec.py'])
+
+try:
+    # Wait for 20 seconds
+    time.sleep(20)
+finally:
+    # Terminate the subprocess
+    proc.terminate()
+    try:
+        proc.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        proc.kill()
