@@ -5,7 +5,7 @@ import signal
 import sys
 import time
 import os
-
+output_folder=r'C:\Users\Graybird\Desktop\test\catpured_frames'
 # Global flag for termination
 terminate = False
 
@@ -18,14 +18,14 @@ def main():
     signal.signal(signal.SIGTERM, handle_sigterm)
 
     # Video capture setup
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     if not cap.isOpened():
         print("Error: Cannot open camera", file=sys.stderr)
         sys.exit(1)
 
     # Video writer setup
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out_filename = f"recording_{int(time.time())}.avi"
+    out_filename = f"{output_folder}/frame_{int(time.time())}.avi"
     fps = 20.0
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))

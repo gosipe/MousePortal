@@ -2,20 +2,26 @@ import subprocess
 import time
 import signal
 import sys
-
-# Replace 'other_script.py' with the path to the script you want to run
-script_to_run = 'other_script.py'
-
+import os
+import msvcrt
+time_rec=60
+os.chdir(r'C:\Users\Graybird\MousePortal')
 # Start the subprocess
-proc = subprocess.Popen(['python', 'trigger_cam_rec.py'])
+proc = subprocess.Popen([sys.executable, 'trigger_cam_rec'])
 
 try:
-    # Wait for 20 seconds
-    time.sleep(20)
+    print("Press 'Esc' to stop recording early...")
+    start = time.time()
+    while time.time() - start < time_rec:
+        if msvcrt.kbhit():
+            if msvcrt.getch() == b'\x1b':  # ESC key
+                print("Esc pressed, terminating...")
+                break
+        time.sleep(0.1)
 finally:
     # Terminate the subprocess
     proc.terminate()
     try:
-        proc.wait(timeout=10)
+        proc.wait(timeout=5)
     except subprocess.TimeoutExpired:
         proc.kill()
